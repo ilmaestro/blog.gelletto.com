@@ -1,3 +1,3 @@
 # gelletto.com
 
-website for gellet.com
+website for gelleto.com
