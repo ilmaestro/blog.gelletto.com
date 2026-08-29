@@ -1,2 +1,3 @@
-# blog.gelletto.com
-blog archive for gelletto.com
+# gelletto.com
+
+website for gellet.com
