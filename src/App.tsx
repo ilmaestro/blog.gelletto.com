@@ -85,7 +85,7 @@ function App() {
           <span className="hero__title-of"> of All Time</span>
         </h1>
         <p className="hero__tagline">
-          A hand-picked top ten of the players who defined the bass — across
+          A hand-picked list of ten players who defined the bass — across
           jazz, funk, rock, and metal.
         </p>
         <a className="hero__cta" href="#list">
