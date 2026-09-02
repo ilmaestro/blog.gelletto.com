@@ -23,7 +23,7 @@ function getPacificParts() {
 }
 
 const { hour: ptHour, minute: ptMinute } = getPacificParts();
-if (process.env.WORKFLOW_DISPATCH_TEST !== '1' && (ptHour !== 8 || ptMinute > 10)) {
+if (ptHour !== 8 || ptMinute > 10) {
   console.log(`Skipping: PT is ${ptHour}:${String(ptMinute).padStart(2, '0')}, not ~8:00 AM.`);
   process.exit(0);
 }
