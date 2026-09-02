@@ -1,0 +1,23 @@
+name: Weekday morning interest post
+
+on:
+  schedule:
+    # Run at both 15:00 and 16:00 UTC on weekdays. The script checks
+    # America/Los_Angeles time and only posts when it is ~8:00 AM PT, so
+    # exactly one run fires year-round despite DST.
+    - cron: '0 15,16 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Post morning message
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          NASA_API_KEY: ${{ secrets.NASA_API_KEY }}
+        run: node scripts/morning-post.js
