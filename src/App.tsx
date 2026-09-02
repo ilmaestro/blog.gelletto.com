@@ -94,7 +94,7 @@ function App() {
       </header>
 
       <main className="list" id="list">
-        <h2 className="list__heading">Top 10 Bass Players of All Time</h2>
+        <h2 className="list__heading">Most Excellent Bass Players</h2>
         <div className="list__grid">
           {players.map((player) => (
             <BassPlayerCard key={player.name} player={player} />
