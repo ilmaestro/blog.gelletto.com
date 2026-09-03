@@ -21,7 +21,16 @@ export default function PuppiesPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = (await res.json()) as { status: string; message: string[] }
       if (data.status !== 'success') throw new Error('Unexpected API response')
-      setImages((prev) => [...prev, ...data.message])
+      setImages((prev) => {
+        const next = [...prev, ...data.message]
+        // After adding images, check if page is still not scrollable
+        setTimeout(() => {
+          if (document.documentElement.scrollHeight <= window.innerHeight + 100) {
+            loadMore()
+          }
+        }, 0)
+        return next
+      })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load puppies')
     } finally {
