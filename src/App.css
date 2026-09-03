@@ -97,6 +97,9 @@
     transform 0.25s ease,
     box-shadow 0.25s ease;
   animation: riseIn 0.7s ease 0.24s both;
+  cursor: pointer;
+  border: none;
+}
 }
 
 .hero__cta:hover {

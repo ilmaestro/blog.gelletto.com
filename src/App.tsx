@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import BassPlayerCard, { type BassPlayer } from './BassPlayerCard'
 import SiteMenu from './components/SiteMenu'
 import './App.css'
@@ -76,6 +77,12 @@ const players: BassPlayer[] = [
 ]
 
 function App() {
+  const listRef = useRef<HTMLElement>(null)
+
+  const scrollToList = () => {
+    listRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
     <div className="page">
       <SiteMenu />
@@ -90,12 +97,12 @@ function App() {
           A hand-picked list of ten players who defined the bass — across
           jazz, funk, rock, and metal.
         </p>
-        <a className="hero__cta" href="#list">
+        <a className="hero__cta" onClick={scrollToList}>
           Meet the ten <span aria-hidden="true">↓</span>
         </a>
       </header>
 
-      <main className="list" id="list">
+      <main ref={listRef} className="list" id="list">
         <h2 className="list__heading">Most Excellent Bass Players</h2>
         <div className="list__grid">
           {players.map((player) => (
