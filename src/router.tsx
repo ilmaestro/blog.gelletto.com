@@ -8,7 +8,7 @@ const PuppiesPage = lazy(() => import('./puppies/PuppiesPage.tsx'))
 
 /**
  * HashRouter because GitHub Pages can't serve unknown paths -- a direct
- * load of /notes-1138 would 404. The route is /#/notes-1138 and stays
+ * load of /notes would 404. The route is /#/notes and stays
  * unlisted anywhere on the site.
  */
 export default function Router() {
@@ -17,7 +17,7 @@ export default function Router() {
       <Routes>
         <Route path="/" element={<App />} />
         <Route
-          path="/notes-1138"
+          path="/notes"
           element={
             <Suspense>
               <NotesPage />

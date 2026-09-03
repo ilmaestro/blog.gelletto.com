@@ -7,6 +7,7 @@ export default function PuppiesPage() {
   const [images, setImages] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showTopBtn, setShowTopBtn] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const loadingRef = useRef(false)
 
@@ -32,6 +33,15 @@ export default function PuppiesPage() {
   useEffect(() => {
     loadMore()
   }, [loadMore])
+
+  useEffect(() => {
+    const onScroll = () => setShowTopBtn(window.scrollY > 400)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
   useEffect(() => {
     const el = sentinelRef.current
@@ -71,6 +81,11 @@ export default function PuppiesPage() {
       )}
       {loading && <div className="puppies-status">Fetching more puppies…</div>}
       <div ref={sentinelRef} aria-hidden="true" />
+      {showTopBtn && (
+        <button className="puppies-back-to-top" onClick={scrollToTop} aria-label="Back to top">
+          ↑
+        </button>
+      )}
     </div>
   )
 }
