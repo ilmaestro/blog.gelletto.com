@@ -23,8 +23,8 @@ function getPacificParts() {
 }
 
 const { hour: ptHour, minute: ptMinute } = getPacificParts();
-if (ptHour !== 8 || ptMinute > 10) {
-  console.log(`Skipping: PT is ${ptHour}:${String(ptMinute).padStart(2, '0')}, not ~8:00 AM.`);
+if (ptHour < 8 || ptHour > 11) {
+  console.log(`Skipping: PT is ${ptHour}:${String(ptMinute).padStart(2, '0')}, not morning (8-11 AM PT).`);
   process.exit(0);
 }
 
