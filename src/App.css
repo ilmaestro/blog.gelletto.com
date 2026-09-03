@@ -100,7 +100,6 @@
   cursor: pointer;
   border: none;
 }
-}
 
 .hero__cta:hover {
   transform: translateY(-3px);
