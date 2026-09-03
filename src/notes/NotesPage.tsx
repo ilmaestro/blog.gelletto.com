@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import SiteMenu from '../components/SiteMenu'
+import MarkdownToolbar from './MarkdownToolbar'
 import { create, list, remove, update, type Note } from './store'
 import './notes.css'
 
@@ -15,6 +16,7 @@ export default function NotesPage() {
   const [draftName, setDraftName] = useState('')
   const [draftContent, setDraftContent] = useState('')
   const [confirm, setConfirm] = useState<ConfirmState | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Derived from state — if the note disappears from the store,
   // selected becomes undefined and the empty state renders.
@@ -64,6 +66,20 @@ export default function NotesPage() {
     editing &&
     selected !== undefined &&
     (draftName !== selected.name || draftContent !== selected.content)
+
+  const handleInsertText = (text: string, start: number, end: number) => {
+    const before = draftContent.slice(0, start)
+    const after = draftContent.slice(end)
+    const newContent = before + text + after
+    setDraftContent(newContent)
+    // Restore focus and cursor position after render
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus()
+        textareaRef.current.setSelectionRange(start + text.length, start + text.length)
+      }
+    })
+  }
 
   return (
     <div className="notes">
@@ -169,13 +185,17 @@ export default function NotesPage() {
                 </ReactMarkdown>
               </div>
             ) : (
-              <textarea
-                className="notes__editor"
-                value={draftContent}
-                onChange={(e) => setDraftContent(e.target.value)}
-                placeholder="Write in Markdown..."
-                spellCheck={false}
-              />
+              <>
+                <MarkdownToolbar textareaRef={textareaRef} onInsert={handleInsertText} />
+                <textarea
+                  ref={textareaRef}
+                  className="notes__editor"
+                  value={draftContent}
+                  onChange={(e) => setDraftContent(e.target.value)}
+                  placeholder="Write in Markdown..."
+                  spellCheck={false}
+                />
+              </>
             )}
           </>
         )}

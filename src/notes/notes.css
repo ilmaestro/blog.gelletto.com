@@ -214,9 +214,9 @@
  .notes__editor {
   width: 100%;
   min-height: 60svh;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 0;
+  border: none;
+  border-radius: 0 0 var(--radius) var(--radius);
   background: var(--surface);
   color: var(--text);
   font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
@@ -227,7 +227,6 @@
 
 .notes__editor:focus {
   outline: none;
-  border-color: var(--accent-3);
 }
 
 /* Rendered Markdown */
