@@ -1,4 +1,5 @@
 import BassPlayerCard, { type BassPlayer } from './BassPlayerCard'
+import SiteMenu from './components/SiteMenu'
 import './App.css'
 
 const players: BassPlayer[] = [
@@ -77,12 +78,7 @@ const players: BassPlayer[] = [
 function App() {
   return (
     <div className="page">
-      <nav className="site-nav">
-        <a href="#/">Home</a>
-        <a href="#/notes">Notes</a>
-        <a href="#/puppies">Puppies</a>
-      </nav>
-
+      <SiteMenu />
       <header className="hero">
         <p className="hero__eyebrow">The all-time list</p>
         <h1 className="hero__title">

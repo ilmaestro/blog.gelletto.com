@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import SiteMenu from '../components/SiteMenu'
 import './puppies.css'
 
 const API = 'https://dog.ceo/api/breeds/image/random/12'
@@ -11,7 +12,7 @@ export default function PuppiesPage() {
   const sentinelRef = useRef<HTMLDivElement>(null)
   const loadingRef = useRef(false)
 
-  const loadMore = useCallback(async () => {
+  const loadMore = useCallback(async function loadMoreInternal() {
     if (loadingRef.current) return
     loadingRef.current = true
     setLoading(true)
@@ -26,7 +27,7 @@ export default function PuppiesPage() {
         // After adding images, check if page is still not scrollable
         setTimeout(() => {
           if (document.documentElement.scrollHeight <= window.innerHeight + 100) {
-            loadMore()
+            loadMoreInternal()
           }
         }, 0)
         return next
@@ -67,12 +68,7 @@ export default function PuppiesPage() {
 
   return (
     <div className="puppies-page">
-      <nav className="site-nav">
-        <a href="#/">Home</a>
-        <a href="#/notes">Notes</a>
-        <a href="#/puppies">Puppies</a>
-      </nav>
-
+      <SiteMenu />
       <header className="puppies-header">
         <h1>Puppies 🐶</h1>
         <p>
