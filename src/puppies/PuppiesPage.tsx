@@ -1,0 +1,76 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import './puppies.css'
+
+const API = 'https://dog.ceo/api/breeds/image/random/12'
+
+export default function PuppiesPage() {
+  const [images, setImages] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadingRef = useRef(false)
+
+  const loadMore = useCallback(async () => {
+    if (loadingRef.current) return
+    loadingRef.current = true
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(API)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = (await res.json()) as { status: string; message: string[] }
+      if (data.status !== 'success') throw new Error('Unexpected API response')
+      setImages((prev) => [...prev, ...data.message])
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load puppies')
+    } finally {
+      loadingRef.current = false
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadMore()
+  }, [loadMore])
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore()
+      },
+      { rootMargin: '600px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [loadMore])
+
+  return (
+    <div className="puppies-page">
+      <header className="puppies-header">
+        <h1>Puppies 🐶</h1>
+        <p>
+          An endless stream of good dogs, courtesy of{' '}
+          <a href="https://dog.ceo/dog-api/" target="_blank" rel="noreferrer">
+            dog.ceo
+          </a>
+          .
+        </p>
+      </header>
+      <div className="puppies-grid">
+        {images.map((src, i) => (
+          <img key={`${src}-${i}`} src={src} alt="A puppy" loading="lazy" />
+        ))}
+      </div>
+      {error && (
+        <div className="puppies-status">
+          <p>Couldn't fetch more puppies: {error}</p>
+          <button onClick={loadMore}>Try again</button>
+        </div>
+      )}
+      {loading && <div className="puppies-status">Fetching more puppies…</div>}
+      <div ref={sentinelRef} aria-hidden="true" />
+    </div>
+  )
+}
