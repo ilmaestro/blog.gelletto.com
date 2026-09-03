@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import SiteMenu from '../components/SiteMenu'
 import { create, list, remove, update, type Note } from './store'
 import './notes.css'
 
@@ -66,6 +67,7 @@ export default function NotesPage() {
 
   return (
     <div className="notes">
+      <SiteMenu />
       <aside className="notes__sidebar">
         <button className="notes__new" type="button" onClick={handleNew}>
           + New note
