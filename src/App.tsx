@@ -79,7 +79,7 @@ function App() {
     <div className="page">
       <nav className="site-nav">
         <a href="#/">Home</a>
-        <a href="#/notes-1138">Notes</a>
+        <a href="#/notes">Notes</a>
         <a href="#/puppies">Puppies</a>
       </nav>
 
