@@ -4,6 +4,7 @@ import App from './App.tsx'
 
 // Lazy: keeps react-markdown out of the main page's bundle.
 const NotesPage = lazy(() => import('./notes/NotesPage.tsx'))
+const PuppiesPage = lazy(() => import('./puppies/PuppiesPage.tsx'))
 
 /**
  * HashRouter because GitHub Pages can't serve unknown paths -- a direct
@@ -20,6 +21,14 @@ export default function Router() {
           element={
             <Suspense>
               <NotesPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/puppies"
+          element={
+            <Suspense>
+              <PuppiesPage />
             </Suspense>
           }
         />
