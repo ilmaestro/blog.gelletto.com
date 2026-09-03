@@ -66,6 +66,12 @@ export default function NotesPage() {
 
   return (
     <div className="notes">
+      <nav className="site-nav">
+        <a href="#/">Home</a>
+        <a href="#/notes">Notes</a>
+        <a href="#/puppies">Puppies</a>
+      </nav>
+
       <aside className="notes__sidebar">
         <button className="notes__new" type="button" onClick={handleNew}>
           + New note

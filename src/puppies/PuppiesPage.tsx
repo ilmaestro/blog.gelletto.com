@@ -58,6 +58,12 @@ export default function PuppiesPage() {
 
   return (
     <div className="puppies-page">
+      <nav className="site-nav">
+        <a href="#/">Home</a>
+        <a href="#/notes">Notes</a>
+        <a href="#/puppies">Puppies</a>
+      </nav>
+
       <header className="puppies-header">
         <h1>Puppies 🐶</h1>
         <p>
