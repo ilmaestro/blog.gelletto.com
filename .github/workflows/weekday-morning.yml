@@ -2,9 +2,10 @@ name: Weekday morning interest post
 
 on:
   schedule:
-    # Run at both 15:00 and 16:00 UTC on weekdays. The script checks
-    # America/Los_Angeles time and only posts when it is ~8:00 AM PT, so
-    # exactly one run fires year-round despite DST.
+    # Run at 15:00 and 16:00 UTC on weekdays. The script checks
+    # America/Los_Angeles time and only posts when it is 7-11 AM PT, so
+    # it fires year-round despite DST and tolerates GitHub's scheduled-run
+    # delays (runs are frequently late by 1-3 hours).
     - cron: '0 15,16 * * 1-5'
   workflow_dispatch:
 
