@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 // Posts a weekday morning "something interesting" message to Discord.
 // Includes NASA's Astronomy Picture of the Day plus 2-3 AI headlines.
+//
+// No local time-of-day gating: GitHub Actions `schedule` events are
+// best-effort and frequently fire 1-6 hours late, so any client-side
+// clock window turns into a silent skip. The workflow's cron slots
+// (15:00/16:00 UTC weekdays) are the ONLY arbiter of "morning".
 
 const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
@@ -9,24 +14,7 @@ if (!WEBHOOK_URL) {
   process.exit(1);
 }
 
-function getPacificParts() {
-  const now = new Date();
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/Los_Angeles',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-  });
-  const parts = formatter.formatToParts(now);
-  const get = (type) => parseInt(parts.find((p) => p.type === type)?.value, 10);
-  return { hour: get('hour'), minute: get('minute') };
-}
-
-const { hour: ptHour, minute: ptMinute } = getPacificParts();
-if (ptHour < 7 || ptHour > 11) {
-  console.log(`Skipping: PT is ${ptHour}:${String(ptMinute).padStart(2, '0')}, not morning (7-11 AM PT).`);
-  process.exit(0);
-}
+console.log(`Running at ${new Date().toISOString()} (no local time gate; workflow schedule decides).`);
 
 function truncate(text, max) {
   if (!text) return '';
