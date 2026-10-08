@@ -36,35 +36,64 @@ async function fetchWikipediaFallback() {
   return res.json();
 }
 
+// Headlines older than this are "stale": they're held back unless nothing
+// fresher exists in either feed, so a quiet feed can't produce the same
+// links day after day. 48h allows at most ~2 consecutive weekday posts of
+// the same item; the Ars Technica fallback tops up when MIT TR is quiet.
+const FRESH_WINDOW_MS = 48 * 60 * 60 * 1000;
+
+function parseItem(block) {
+  const title = (block.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/)?.[1] || '')
+    .replace(/<\/?[^>]+>/g, '')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(code))
+    .trim();
+  const link = block.match(/<link>\s*(.*?)\s*<\/link>/)?.[1]?.trim() || '';
+  const pubRaw = block.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1]?.trim() || '';
+  const published = pubRaw ? new Date(pubRaw) : null;
+  return {
+    title,
+    link,
+    published: published && !Number.isNaN(published.getTime()) ? published.getTime() : null,
+  };
+}
+
+async function fetchFeedHeadlines(feedUrl, seen) {
+  const res = await fetch(feedUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  if (!res.ok) throw new Error(`${feedUrl} ${res.status}`);
+  const xml = await res.text();
+  return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)]
+    .map((match) => parseItem(match[1]))
+    .filter((item) => item.title && item.link && !seen.has(item.link));
+}
+
 async function fetchAiHeadlines() {
   const feeds = [
     'https://www.technologyreview.com/topic/artificial-intelligence/feed/',
     'https://arstechnica.com/tag/artificial-intelligence/feed/',
   ];
 
+  const seen = new Set();
+  const fresh = [];
+  const stale = [];
+
   for (const feedUrl of feeds) {
     try {
-      const res = await fetch(feedUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-      if (!res.ok) throw new Error(`${feedUrl} ${res.status}`);
-      const xml = await res.text();
-      const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
-      const headlines = items.slice(0, 3).map((match) => {
-        const block = match[1];
-        const title = (block.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/)?.[1] || '')
-          .replace(/<\/?[^>]+>/g, '')
-          .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(code))
-          .trim();
-        const link = block.match(/<link>\s*(.*?)\s*<\/link>/)?.[1]?.trim() || '';
-        return { title, link };
-      }).filter((h) => h.title && h.link);
-
-      if (headlines.length > 0) return headlines;
+      const headlines = await fetchFeedHeadlines(feedUrl, seen);
+      for (const item of headlines) {
+        seen.add(item.link);
+        const isFresh = item.published !== null && item.published >= Date.now() - FRESH_WINDOW_MS;
+        (isFresh ? fresh : stale).push(item);
+      }
     } catch (err) {
       console.warn('AI feed failed:', err.message);
     }
+    if (fresh.length >= 3) break;
   }
 
-  return [];
+  if (fresh.length > 0) return fresh.slice(0, 3);
+  // Neither feed has anything recent: fall back to the newest available
+  // rather than dropping the section entirely.
+  return stale.slice(0, 3);
 }
 
 async function buildPayload() {
