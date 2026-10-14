@@ -21,19 +21,42 @@ function truncate(text, max) {
   return text.length > max ? text.slice(0, max - 1) + '…' : text;
 }
 
+// Both NASA APOD and Wikipedia fail transiently (APOD 500s under load,
+// Wikipedia rate-limits). One retry with a short backoff keeps the bot
+// from falling to the hardcoded line when a single blip would have done.
+async function fetchJsonWithRetry(url, headers, { retries = 1, backoffMs = 3000, label } = {}) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      console.warn(`${label}: retrying (attempt ${attempt + 1})`);
+    }
+    try {
+      const res = await fetch(url, { headers });
+      if (res.ok) return res.json();
+      throw new Error(`${label} ${res.status}`);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
+}
+
 async function fetchApod() {
   const key = process.env.NASA_API_KEY || '***';
   const url = `https://api.nasa.gov/planetary/apod?api_key=${key}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`APOD ${res.status}`);
-  return res.json();
+  return fetchJsonWithRetry(url, {}, { label: 'APOD' });
 }
 
 async function fetchWikipediaFallback() {
   const url = 'https://en.wikipedia.org/api/rest_v1/page/random/summary';
-  const res = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!res.ok) throw new Error(`Wikipedia ${res.status}`);
-  return res.json();
+  // Wikimedia's REST API rejects UA-less/anonymous-looking clients with
+  // 429s; a descriptive User-Agent per their API etiquette fixes that.
+  const headers = {
+    Accept: 'application/json',
+    'User-Agent': 'MorningInterestBot/1.0 (https://github.com/ilmaestro/blog.gelletto.com; GitHub: ilmaestro)',
+  };
+  return fetchJsonWithRetry(url, headers, { label: 'Wikipedia' });
 }
 
 // Headlines older than this are "stale": they're held back unless nothing
