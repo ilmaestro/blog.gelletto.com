@@ -42,10 +42,27 @@ async function fetchJsonWithRetry(url, headers, { retries = 1, backoffMs = 3000,
   throw lastErr;
 }
 
+// NASA's APOD API sometimes serves a broken placeholder payload — HTTP 200,
+// but a generic logo image and a video-embed boilerplate notice instead of
+// the real explanation (observed Oct 16 2026, across ALL dates, upstream-
+// wide). Status checks can't catch this, so inspect content before using it.
+function apodLooksBroken(data) {
+  if (!data || typeof data !== 'object') return true;
+  const explanation = String(data.explanation || '').trim();
+  const url = String(data.url || '');
+  return explanation.startsWith('To view this video')
+    || url.includes('nasa-logo')
+    || explanation.length < 40;
+}
+
 async function fetchApod() {
   const key = process.env.NASA_API_KEY || '***';
   const url = `https://api.nasa.gov/planetary/apod?api_key=${key}`;
-  return fetchJsonWithRetry(url, {}, { label: 'APOD' });
+  const data = await fetchJsonWithRetry(url, {}, { label: 'APOD' });
+  if (apodLooksBroken(data)) {
+    throw new Error('APOD returned placeholder payload (upstream content issue)');
+  }
+  return data;
 }
 
 async function fetchWikipediaFallback() {
