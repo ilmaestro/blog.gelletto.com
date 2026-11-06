@@ -1,12 +1,13 @@
 name: Weekday morning interest post
 
+# Schedule disabled 2026-11-06 at owner request (bot paused, will be revived
+# later). workflow_dispatch kept so the post can be run/tested manually.
+# To revive: restore the schedule block below.
+#
+#   schedule:
+#     - cron: '0 15,16 * * 1-5'
+#
 on:
-  schedule:
-    # Run at 15:00 and 16:00 UTC on weekdays. These cron slots are the
-    # sole arbiter of "morning" (the script has no local time gate),
-    # so the schedule fires year-round despite DST and tolerates
-    # GitHub's scheduled-run delays (runs are frequently late by 1-3 hours).
-    - cron: '0 15,16 * * 1-5'
   workflow_dispatch:
 
 jobs:
